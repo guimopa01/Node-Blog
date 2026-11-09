@@ -1,0 +1,40 @@
+<%- include('../partials/header') %>
+
+    <h1>Crear un Nuevo Post con Imagen</h1>
+
+    <form action="/posts" method="POST" enctype="multipart/form-data"
+        style="max-width: 600px; display: flex; flex-direction: column; gap: 15px;">
+        <div>
+            <label for="title" style="display: block; margin-bottom: 5px;">Título:</label>
+            <input type="text" id="title" name="title" required style="width: 100%; padding: 8px;">
+        </div>
+
+        <div>
+            <label for="categoryId" style="display: block; margin-bottom: 5px;">Categoría:</label>
+            <select id="categoryId" name="categoryId" required style="width: 100%; padding: 8px;">
+                <option value="">Selecciona una categoría</option>
+                <% categories.forEach(category=> { %>
+                    <option value="<%= category.id %>">
+                        <%= category.name %>
+                    </option>
+                    <% }) %>
+            </select>
+        </div>
+
+        <!-- Nuevo campo para la imagen -->
+        <div>
+            <label for="image" style="display: block; margin-bottom: 5px;">Imagen de portada:</label>
+            <input type="file" id="image" name="image" accept="image/*" style="width: 100%;">
+        </div>
+
+        <div>
+            <label for="content" style="display: block; margin-bottom: 5px;">Contenido:</label>
+            <textarea id="content" name="content" rows="10" required style="width: 100%; padding: 8px;"></textarea>
+        </div>
+
+        <button type="submit" style="padding: 10px; background: #0070f3; color: white; border: none; cursor: pointer;">
+            Publicar Post
+        </button>
+    </form>
+
+    <%- include('../partials/footer') %>

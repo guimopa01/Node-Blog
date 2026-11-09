@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export PATH="$DIR:$PATH"
+if [ -z "$PRISMA_SCHEMA_ENGINE_BINARY" ] && [ -f "/home/alumno/.cache/prisma/master/c2990dca591cba766e3b7ef5d9e8a84796e47ab7/debian-openssl-3.0.x/schema-engine" ]; then
+  export PRISMA_SCHEMA_ENGINE_BINARY="/home/alumno/.cache/prisma/master/c2990dca591cba766e3b7ef5d9e8a84796e47ab7/debian-openssl-3.0.x/schema-engine"
+fi
+exec "$DIR/../node_modules/.bin/prisma" "$@"

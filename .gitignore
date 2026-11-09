@@ -1,6 +1,3 @@
-# Dependencies
-node_modules/
-
 # Environment variables
 .env
 .env.*
@@ -22,6 +19,7 @@ coverage/
 pids/
 *.pid
 *.pid.lock
+bin/node
 
 # OS files
 .DS_Store
