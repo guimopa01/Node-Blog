@@ -20,6 +20,8 @@ pids/
 *.pid
 *.pid.lock
 bin/node
+prisma/dev.db*
+public/uploads/
 
 # OS files
 .DS_Store

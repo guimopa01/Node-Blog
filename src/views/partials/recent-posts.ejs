@@ -1,0 +1,17 @@
+<aside class="recent-sidebar">
+    <h2>Recent posts</h2>
+    <% if (recentPosts.length) { %>
+        <ul>
+            <% recentPosts.forEach((post) => { %>
+                <li>
+                    <a href="/posts/<%= post.id %>"><%= post.title %></a>
+                    <time datetime="<%= new Date(post.createdAt).toISOString() %>">
+                        <%= new Date(post.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) %>
+                    </time>
+                </li>
+            <% }) %>
+        </ul>
+    <% } else { %>
+        <p>Aún no hay posts publicados.</p>
+    <% } %>
+</aside>

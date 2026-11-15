@@ -1,0 +1,23 @@
+<article class="post-card">
+    <a class="post-card-link" href="/posts/<%= post.id %>">
+        <% if (post.images.length) { %>
+            <img class="post-card-image" src="<%= post.images[0].url %>" alt="Imagen de <%= post.title %>" loading="lazy">
+        <% } else { %>
+            <div class="post-card-placeholder" aria-hidden="true">Node Blog</div>
+        <% } %>
+        <div class="post-card-content">
+            <div class="post-card-meta">
+                <time datetime="<%= new Date(post.createdAt).toISOString() %>">
+                    <%= new Date(post.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                </time>
+                <% if (post.category) { %><span><%= post.category.name %></span><% } %>
+            </div>
+            <h2><%= post.title %></h2>
+            <p class="post-card-excerpt"><%= post.content.length > 200 ? `${post.content.slice(0, 200).trim()}…` : post.content %></p>
+            <div class="post-card-stats">
+                <span><%= post._count.likes %> likes</span>
+                <span><%= post._count.comments %> comentarios</span>
+            </div>
+        </div>
+    </a>
+</article>

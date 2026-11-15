@@ -23,14 +23,14 @@
   },
   "homepage": "https://github.com/guimopa01/Node-Blog#readme",
   "dependencies": {
-    "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/adapter-better-sqlite3": "^7.10.1",
     "@prisma/client": "^7.10.1",
+    "bcrypt": "^6.0.0",
     "dotenv": "^18.0.9",
     "ejs": "^7.0.2",
     "express": "^5.3.0",
     "express-session": "^1.19.0",
-    "multer": "^2.5.0",
-    "pg": "^8.23.1"
+    "multer": "^2.5.0"
   },
   "devDependencies": {
     "prisma": "^7.10.1"

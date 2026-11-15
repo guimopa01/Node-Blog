@@ -1,0 +1,37 @@
+<%- include('partials/header') %>
+
+    <section class="content-page page-width contact-page">
+        <div class="page-heading">
+            <p class="eyebrow">CONTACT</p>
+            <h1>Contacto</h1>
+            <p class="page-lead">¿Tienes una pregunta o comentario? Déjame un mensaje.</p>
+        </div>
+
+        <div class="contact-panel">
+            <% if (contactSent) { %>
+                <p class="contact-success" role="status">Mensaje enviado. Gracias por escribirme.</p>
+            <% } else { %>
+                <form action="/contact" method="POST" class="contact-form">
+                    <label>
+                        <span>Nombre</span>
+                        <input type="text" name="name" autocomplete="given-name" required>
+                    </label>
+                    <label>
+                        <span>Apellidos <small>(opcional)</small></span>
+                        <input type="text" name="lastName" autocomplete="family-name">
+                    </label>
+                    <label class="form-wide">
+                        <span>Correo electrónico</span>
+                        <input type="email" name="email" autocomplete="email" required>
+                    </label>
+                    <label class="form-wide">
+                        <span>Mensaje</span>
+                        <textarea name="message" rows="5" required></textarea>
+                    </label>
+                    <button class="form-wide" type="submit">Enviar mensaje</button>
+                </form>
+            <% } %>
+        </div>
+    </section>
+
+<%- include('partials/footer') %>

@@ -1,33 +1,21 @@
 <%- include('partials/header') %>
 
-    <h1>Bienvenido a mi Blog 🚀</h1>
-    <hr>
+    <section class="home-intro page-width">
+        <p class="eyebrow">NODE BLOG</p>
+        <h1>Posts, ideas y conversaciones.</h1>
+        <p>Lee las últimas publicaciones o entra al blog para verlas todas.</p>
+    </section>
 
-    <% if (posts.length===0) { %>
-        <p>Aún no hay publicaciones en el blog.</p>
-        <% } else { %>
-            <div class="posts-container">
-                <% posts.forEach(post=> { %>
-                    <article style="margin-bottom: 30px; border-bottom: 1px solid #ddd; padding-bottom: 15px;">
-                        <h2>
-                            <%= post.title %>
-                        </h2>
-                        <p style="color: #666; font-size: 0.9rem;">
-                            Por <strong>
-                                <%= post.author.name %>
-                            </strong> |
-                            Categoría: <span style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px;">
-                                <%= post.category.name %>
-                            </span> |
-                            Publicado el: <%= new Date(post.createdAt).toLocaleDateString() %>
-                        </p>
-                        <p>
-                            <%= post.content.substring(0, 200) %>...
-                        </p>
-                        <a href="/posts/<%= post.id %>">Leer más</a>
-                    </article>
-                    <% }) %>
-            </div>
-            <% } %>
+    <section class="home-image-grid page-width" aria-label="Imágenes de las publicaciones">
+        <% posts.forEach((post) => { %>
+            <a class="home-image-link" href="/posts/<%= post.id %>" aria-label="Ver publicación: <%= post.title %>">
+                <% if (post.images.length) { %>
+                    <img src="<%= post.images[0].url %>" alt="<%= post.title %>" loading="lazy">
+                <% } else { %>
+                    <div class="home-image-placeholder" aria-hidden="true">Node Blog</div>
+                <% } %>
+            </a>
+        <% }) %>
+    </section>
 
-                <%- include('partials/footer') %>
+<%- include('partials/footer') %>

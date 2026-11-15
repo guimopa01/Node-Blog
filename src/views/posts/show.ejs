@@ -1,0 +1,84 @@
+<%- include('../partials/header') %>
+
+    <article class="post-detail page-width">
+        <a class="back-link" href="/blog"><span aria-hidden="true">←</span> Volver al blog</a>
+        <header class="post-detail-header">
+            <% if (post.category) { %><p class="eyebrow"><%= post.category.name %></p><% } %>
+            <h1><%= post.title %></h1>
+            <p class="post-detail-meta">
+                <time datetime="<%= new Date(post.createdAt).toISOString() %>">
+                    <%= new Date(post.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) %>
+                </time>
+                <span>Por <%= post.user?.name || 'Node Blog' %></span>
+            </p>
+        </header>
+
+        <% if (post.images.length) { %>
+            <div class="post-detail-images">
+                <% post.images.forEach((image) => { %>
+                    <img src="<%= image.url %>" alt="Imagen de <%= post.title %>">
+                <% }) %>
+            </div>
+        <% } %>
+
+        <div class="post-detail-content"><%= post.content %></div>
+
+        <section class="post-likes" id="likes" aria-label="Likes">
+            <span><strong><%= post._count.likes %></strong> <%= post._count.likes === 1 ? 'like' : 'likes' %></span>
+            <% if (user) { %>
+                <form action="/posts/<%= post.id %>/like" method="POST">
+                    <button class="like-button<%= liked ? ' is-liked' : '' %>" type="submit">
+                        <%= liked ? 'Quitar like' : 'Dar like' %>
+                    </button>
+                </form>
+            <% } else { %>
+                <a class="text-action" href="/auth/login">Inicia sesión para dar like</a>
+            <% } %>
+        </section>
+
+        <section class="comments-section" id="comments">
+            <h2>Comentarios <span><%= post._count.comments %></span></h2>
+            <% if (commentError) { %>
+                <p class="form-error" role="alert"><%= commentError %></p>
+            <% } %>
+
+            <% if (post.comments.length) { %>
+                <div class="comment-list">
+                    <% post.comments.forEach((comment) => { %>
+                        <article class="comment">
+                            <div class="comment-heading">
+                                <strong><%= comment.name %></strong>
+                                <time datetime="<%= new Date(comment.createdAt).toISOString() %>">
+                                    <%= new Date(comment.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                                </time>
+                            </div>
+                            <p><%= comment.message %></p>
+                        </article>
+                    <% }) %>
+                </div>
+            <% } else { %>
+                <p class="empty-comments">Todavía no hay comentarios.</p>
+            <% } %>
+
+            <form class="comment-form" action="/posts/<%= post.id %>/comments" method="POST">
+                <h3>Deja un comentario</h3>
+                <div class="comment-fields">
+                    <label>
+                        <span>Nombre</span>
+                        <input type="text" name="name" maxlength="100" value="<%= user?.name || '' %>" required>
+                    </label>
+                    <label>
+                        <span>Correo electrónico</span>
+                        <input type="email" name="email" maxlength="254" value="<%= user?.email || '' %>" required>
+                    </label>
+                </div>
+                <label>
+                    <span>Comentario</span>
+                    <textarea name="message" rows="5" maxlength="5000" required></textarea>
+                </label>
+                <button type="submit">Publicar comentario</button>
+            </form>
+        </section>
+    </article>
+
+<%- include('../partials/footer') %>
