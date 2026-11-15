@@ -55,7 +55,7 @@ El primer comando genera el cliente de Prisma. El segundo crea o actualiza las t
 npm start
 ```
 
-Abre [http://localhost:3000](http://localhost:3000) para ver la pagina principal. La navegacion incluye Home, About, Blog y Contact. Puedes crear una cuenta e iniciar sesion desde el enlace del menu; al iniciar sesion, el menu permite cerrar la sesion. Los mensajes del formulario Contact se guardan en la base local.
+Abre [http://localhost:3000](http://localhost:3000) para ver la pagina principal. Home muestra las publicaciones recientes y una columna de blogs recientes. La navegacion incluye Home, Perfiles, Sobre nosotros y Contacta con nosotros. Perfiles muestra los usuarios registrados y permite abrir cada perfil para ver sus publicaciones. Puedes crear una cuenta e iniciar sesion desde el enlace del menu; al iniciar sesion, el menu permite cerrar la sesion. Los mensajes del formulario de contacto se guardan en la base local.
 
 La seccion Blog muestra las publicaciones guardadas en SQLite. La ruta `/posts` tambien ofrece la lista como JSON. Para crear una publicacion mediante la API, envia una peticion `POST` a `/posts` con JSON:
 

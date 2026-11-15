@@ -2,20 +2,27 @@
 
     <section class="home-intro page-width">
         <p class="eyebrow">NODE BLOG</p>
-        <h1>Posts, ideas y conversaciones.</h1>
-        <p>Lee las últimas publicaciones o entra al blog para verlas todas.</p>
+        <h1>Blogs, ideas y conversaciones.</h1>
+        <p>Descubre las publicaciones más recientes y conoce a sus autores en Perfiles.</p>
     </section>
 
-    <section class="home-image-grid page-width" aria-label="Imágenes de las publicaciones">
-        <% posts.forEach((post) => { %>
-            <a class="home-image-link" href="/posts/<%= post.id %>" aria-label="Ver publicación: <%= post.title %>">
-                <% if (post.images.length) { %>
-                    <img src="<%= post.images[0].url %>" alt="<%= post.title %>" loading="lazy">
-                <% } else { %>
-                    <div class="home-image-placeholder" aria-hidden="true">Node Blog</div>
-                <% } %>
-            </a>
-        <% }) %>
-    </section>
+    <div class="feed-layout page-width">
+        <section class="feed-main">
+            <div class="feed-heading">
+                <h2>Últimas publicaciones</h2>
+                <a href="/blog">Ver todas</a>
+            </div>
+            <% if (posts.length) { %>
+                <div class="post-card-list">
+                    <% posts.forEach((post) => { %>
+                        <%- include('partials/post-card', { post }) %>
+                    <% }) %>
+                </div>
+            <% } else { %>
+                <p class="empty-posts">Todavía no hay publicaciones.</p>
+            <% } %>
+        </section>
+        <%- include('partials/recent-posts', { recentPosts }) %>
+    </div>
 
 <%- include('partials/footer') %>

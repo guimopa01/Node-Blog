@@ -216,38 +216,70 @@ main {
   font-weight: 400;
 }
 
-.home-image-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  margin-block: 36px 68px;
-}
-
-.home-image-link {
-  display: block;
-  overflow: hidden;
-  aspect-ratio: 4 / 3;
-  background: #e8eef5;
-}
-
-.home-image-link img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 180ms ease;
-}
-
-.home-image-link:hover img {
-  transform: scale(1.03);
-}
-
 .feed-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 230px;
   align-items: start;
   gap: 34px;
   margin-bottom: 68px;
+}
+
+.profiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+  margin-bottom: 68px;
+}
+
+.profile-card {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.profile-card:hover {
+  border-color: #9eacbc;
+}
+
+.profile-avatar {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  place-items: center;
+  border-radius: 50%;
+  background: #e8eef5;
+  color: var(--accent);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.profile-info {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.profile-name {
+  overflow: hidden;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-post-count {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.profile-posts {
+  padding-bottom: 68px;
 }
 
 .feed-heading {
@@ -307,17 +339,6 @@ main {
 
 .post-card-placeholder {
   display: grid;
-  place-items: center;
-  background: #e8eef5;
-  color: #536b84;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 18px;
-}
-
-.home-image-placeholder {
-  display: grid;
-  width: 100%;
-  height: 100%;
   place-items: center;
   background: #e8eef5;
   color: #536b84;
@@ -950,16 +971,13 @@ main {
     padding-block: 12px;
   }
 
-  .home-image-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-  }
-
   .nav-links {
+    flex-wrap: wrap;
     grid-column: 1 / -1;
     grid-row: 2;
     justify-content: space-between;
     gap: 12px;
+    row-gap: 4px;
   }
 
   .nav-account {
@@ -1043,10 +1061,6 @@ main {
 }
 
 @media (max-width: 420px) {
-  .home-image-grid {
-    gap: 7px;
-  }
-
   .post-card-link {
     grid-template-columns: 1fr;
   }

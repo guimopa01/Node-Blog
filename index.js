@@ -61,6 +61,7 @@ app.get("/", async (_request, response, next) => {
     response.render("index", {
       title: "Node Blog — inicio",
       posts,
+      recentPosts: posts.slice(0, 5),
     });
   } catch (error) {
     next(error);
@@ -68,7 +69,56 @@ app.get("/", async (_request, response, next) => {
 });
 
 app.get("/about", (_request, response) => {
-  response.render("about", { title: "Node Blog — About" });
+  response.render("about", { title: "Node Blog — Sobre nosotros" });
+});
+
+app.get("/profiles", async (_request, response, next) => {
+  try {
+    const profiles = await prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        _count: { select: { posts: true } },
+      },
+      orderBy: { name: "asc" },
+    });
+    response.render("profiles", {
+      title: "Node Blog — Perfiles",
+      profiles,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/profiles/:id", async (request, response, next) => {
+  const profileId = Number(request.params.id);
+  if (!Number.isSafeInteger(profileId) || profileId < 1) {
+    return response.status(404).send("Perfil no encontrado.");
+  }
+
+  try {
+    const [profile, posts] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: profileId },
+        select: { id: true, name: true },
+      }),
+      prisma.post.findMany({
+        ...postListQuery,
+        where: { userId: profileId },
+      }),
+    ]);
+
+    if (!profile) return response.status(404).send("Perfil no encontrado.");
+
+    response.render("profile", {
+      title: `Node Blog — Perfil de ${profile.name}`,
+      profile,
+      posts,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.get("/blog", async (_request, response, next) => {
@@ -86,7 +136,7 @@ app.get("/blog", async (_request, response, next) => {
 
 app.get("/contact", (request, response) => {
   response.render("contact", {
-    title: "Node Blog — Contact",
+    title: "Node Blog — Contacta con nosotros",
     contactSent: request.query.sent === "1",
   });
 });

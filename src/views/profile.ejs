@@ -1,0 +1,27 @@
+<%- include('partials/header') %>
+
+    <section class="page-width page-heading-row">
+        <div>
+            <p class="eyebrow">PERFIL</p>
+            <h1><%= profile.name %></h1>
+        </div>
+        <a class="plain-link" href="/profiles">← Volver a perfiles</a>
+    </section>
+
+    <section class="profile-posts page-width">
+        <div class="feed-heading">
+            <h2>Publicaciones</h2>
+            <span><%= posts.length %> <%= posts.length === 1 ? 'publicación' : 'publicaciones' %></span>
+        </div>
+        <% if (posts.length) { %>
+            <div class="post-card-list">
+                <% posts.forEach((post) => { %>
+                    <%- include('partials/post-card', { post }) %>
+                <% }) %>
+            </div>
+        <% } else { %>
+            <p class="empty-posts">Este usuario todavía no ha publicado.</p>
+        <% } %>
+    </section>
+
+<%- include('partials/footer') %>

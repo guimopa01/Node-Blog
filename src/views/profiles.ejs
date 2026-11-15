@@ -1,0 +1,30 @@
+<%- include('partials/header') %>
+
+    <section class="page-width page-heading-row">
+        <div>
+            <p class="eyebrow">COMUNIDAD</p>
+            <h1>Perfiles</h1>
+            <p class="page-lead">Conoce a quienes publican en Node Blog.</p>
+        </div>
+    </section>
+
+    <section class="profiles-grid page-width" aria-label="Perfiles de usuarios">
+        <% if (profiles.length) { %>
+            <% profiles.forEach((profile) => { %>
+                <a class="profile-card" href="/profiles/<%= profile.id %>">
+                    <span class="profile-avatar" aria-hidden="true"><%= profile.name.trim().charAt(0).toUpperCase() %></span>
+                    <span class="profile-info">
+                        <span class="profile-name"><%= profile.name %></span>
+                        <span class="profile-post-count">
+                            <%= profile._count.posts %>
+                            <%= profile._count.posts === 1 ? 'publicación' : 'publicaciones' %>
+                        </span>
+                    </span>
+                </a>
+            <% }) %>
+        <% } else { %>
+            <p class="empty-posts">Todavía no hay perfiles.</p>
+        <% } %>
+    </section>
+
+<%- include('partials/footer') %>
