@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node --watch index.js",
+    "start": "./bin/node index.js",
+    "dev": "./bin/node --watch index.js",
     "prisma": "./bin/prisma",
+    "studio": "./bin/prisma studio",
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "prisma skills sync || exit 0"
   },
