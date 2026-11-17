@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#102a4c">
     <meta name="description" content="Publicaciones y notas de Node Blog.">
     <title><%= title %></title>
     <link rel="stylesheet" href="/css/style.css">
@@ -23,13 +23,28 @@
             <div class="nav-account">
                 <% if (user) { %>
                     <a class="nav-create" href="/posts/create">Crear post</a>
-                    <span class="nav-greeting">Hola, <%= user.name %></span>
+                    <% if (user.role === 'ADMIN') { %>
+                        <a class="nav-admin" href="/admin" <%= currentPath.startsWith('/admin') ? 'aria-current="page"' : '' %>>Administración</a>
+                        <span class="nav-greeting nav-greeting-admin" aria-label="Administrador: <%= user.name %>">
+                            <span class="nav-admin-avatar" aria-hidden="true">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm7 8a7 7 0 0 0-14 0" />
+                                </svg>
+                            </span>
+                            <span class="nav-admin-identity">
+                                <span class="nav-admin-name"><%= user.name %></span>
+                                <span class="nav-admin-badge">ADMIN</span>
+                            </span>
+                        </span>
+                    <% } else { %>
+                        <span class="nav-greeting">Hola, <%= user.name %></span>
+                    <% } %>
                     <form action="/auth/logout" method="POST">
                         <button class="nav-login" type="submit">Cerrar sesión</button>
                     </form>
                 <% } else { %>
-                    <a class="nav-register" href="/auth/register">Registrarse</a>
                     <a class="nav-login" href="/auth/login">Iniciar sesión</a>
+                    <a class="nav-register" href="/auth/register">Registrarse</a>
                 <% } %>
             </div>
         </nav>

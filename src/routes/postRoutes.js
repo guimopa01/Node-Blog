@@ -16,6 +16,6 @@ router.get('/posts/create', isAuthenticated, postController.getCreatePost);
 router.post('/posts/create', isAuthenticated, uploadPostImage, postController.storePost);
 router.get('/posts/:id', postController.getPost);
 router.post('/posts/:id/like', isAuthenticated, postController.toggleLike);
-router.post('/posts/:id/comments', postController.createComment);
+router.post('/posts/:id/comments', isAuthenticated, postController.createComment);
 
 module.exports = router;

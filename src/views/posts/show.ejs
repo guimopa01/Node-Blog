@@ -7,7 +7,7 @@
             <h1><%= post.title %></h1>
             <p class="post-detail-meta">
                 <time datetime="<%= new Date(post.createdAt).toISOString() %>">
-                    <%= new Date(post.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) %>
+                    Publicado el <%= new Date(post.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) %>
                 </time>
                 <span>Por <%= post.user?.name || 'Node Blog' %></span>
             </p>
@@ -24,60 +24,76 @@
         <div class="post-detail-content"><%= post.content %></div>
 
         <section class="post-likes" id="likes" aria-label="Likes">
-            <span><strong><%= post._count.likes %></strong> <%= post._count.likes === 1 ? 'like' : 'likes' %></span>
             <% if (user) { %>
-                <form action="/posts/<%= post.id %>/like" method="POST">
-                    <button class="like-button<%= liked ? ' is-liked' : '' %>" type="submit">
-                        <%= liked ? 'Quitar like' : 'Dar like' %>
+                <form action="/posts/<%= post.id %>/like" method="POST" data-post-action="like">
+                    <button
+                        class="like-button<%= liked ? ' is-liked' : '' %>"
+                        type="submit"
+                        aria-label="<%= liked ? 'Quitar me gusta' : 'Me gusta' %>"
+                        aria-pressed="<%= liked %>"
+                    >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" />
+                        </svg>
                     </button>
+                    <p class="form-error" data-action-error role="alert" hidden></p>
                 </form>
             <% } else { %>
-                <a class="text-action" href="/auth/login">Inicia sesión para dar like</a>
+                <a
+                    class="like-button"
+                    href="/auth/login?returnTo=<%= encodeURIComponent('/posts/' + post.id + '#likes') %>"
+                    aria-label="Inicia sesión para dar me gusta"
+                    title="Inicia sesión para dar me gusta"
+                >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" />
+                    </svg>
+                </a>
             <% } %>
+            <span class="like-count"><strong data-likes-count><%= post._count.likes %></strong><span class="sr-only"> me gusta</span></span>
         </section>
 
-        <section class="comments-section" id="comments">
-            <h2>Comentarios <span><%= post._count.comments %></span></h2>
+        <section
+            class="comments-section"
+            id="comments"
+            data-post-id="<%= post.id %>"
+            data-can-reply="<%= user ? 'true' : 'false' %>"
+            data-current-user-name="<%= user ? user.name : '' %>"
+        >
+            <h2>Comentarios <span data-comments-count><%= post._count.comments %></span></h2>
             <% if (commentError) { %>
                 <p class="form-error" role="alert"><%= commentError %></p>
+            <% } %>
+
+            <% if (user) { %>
+                <form class="comment-form" action="/posts/<%= post.id %>/comments" method="POST" data-post-action="comment">
+                    <span class="comment-avatar" aria-hidden="true"><%= user.name.trim().charAt(0).toUpperCase() %></span>
+                    <div class="comment-compose">
+                        <label class="sr-only" for="comment-message">Añade un comentario</label>
+                        <textarea id="comment-message" name="message" rows="1" maxlength="5000" placeholder="Añade un comentario..." required></textarea>
+                        <div class="comment-compose-actions">
+                            <span class="comment-char-counter"><span data-character-count>0</span>/5000</span>
+                            <button type="submit">Comentar</button>
+                        </div>
+                    </div>
+                    <p class="form-error" data-action-error role="alert" hidden></p>
+                </form>
+            <% } else { %>
+                <div class="comment-signin">
+                    <span class="comment-avatar comment-avatar-guest" aria-hidden="true">?</span>
+                    <p><a href="/auth/login?returnTo=<%= encodeURIComponent('/posts/' + post.id + '#comments') %>">Inicia sesión</a> para unirte a la conversación.</p>
+                </div>
             <% } %>
 
             <% if (post.comments.length) { %>
                 <div class="comment-list">
                     <% post.comments.forEach((comment) => { %>
-                        <article class="comment">
-                            <div class="comment-heading">
-                                <strong><%= comment.name %></strong>
-                                <time datetime="<%= new Date(comment.createdAt).toISOString() %>">
-                                    <%= new Date(comment.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) %>
-                                </time>
-                            </div>
-                            <p><%= comment.message %></p>
-                        </article>
+                        <%- include('comment', { comment, postId: post.id, user, replyable: true }) %>
                     <% }) %>
                 </div>
             <% } else { %>
-                <p class="empty-comments">Todavía no hay comentarios.</p>
+                <p class="empty-comments">Todavía no hay comentarios. Sé el primero en comentar.</p>
             <% } %>
-
-            <form class="comment-form" action="/posts/<%= post.id %>/comments" method="POST">
-                <h3>Deja un comentario</h3>
-                <div class="comment-fields">
-                    <label>
-                        <span>Nombre</span>
-                        <input type="text" name="name" maxlength="100" value="<%= user?.name || '' %>" required>
-                    </label>
-                    <label>
-                        <span>Correo electrónico</span>
-                        <input type="email" name="email" maxlength="254" value="<%= user?.email || '' %>" required>
-                    </label>
-                </div>
-                <label>
-                    <span>Comentario</span>
-                    <textarea name="message" rows="5" maxlength="5000" required></textarea>
-                </label>
-                <button type="submit">Publicar comentario</button>
-            </form>
         </section>
     </article>
 

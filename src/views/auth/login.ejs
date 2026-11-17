@@ -6,6 +6,12 @@
             <h1>Inicia sesión.</h1>
             <p class="auth-intro">Entra para seguir compartiendo buenas ideas.</p>
 
+            <% if (authRequired) { %>
+                <p class="auth-required-note" role="status">Inicia sesión para participar. Después volverás a la publicación.</p>
+            <% } %>
+            <% if (blocked) { %>
+                <p class="form-error" role="alert">Tu sesión se ha cerrado porque esta cuenta está bloqueada.</p>
+            <% } %>
             <% if (registered) { %>
                 <p class="form-success" role="status">Tu cuenta está lista. Ya puedes iniciar sesión.</p>
             <% } %>
@@ -14,6 +20,9 @@
             <% } %>
 
             <form action="/auth/login" method="POST" class="auth-form">
+                <% if (returnTo !== '/') { %>
+                    <input type="hidden" name="returnTo" value="<%= returnTo %>">
+                <% } %>
                 <label for="email">Correo electrónico</label>
                 <input id="email" type="email" name="email" autocomplete="email" required>
 
@@ -22,7 +31,7 @@
 
                 <button class="button button-dark" type="submit">Iniciar sesión <span aria-hidden="true">↗</span></button>
             </form>
-            <p class="auth-switch">¿Aún no tienes cuenta? <a href="/auth/register">Crea una aquí</a></p>
+            <p class="auth-switch">¿Aún no tienes cuenta? <a href="/auth/register<%= returnTo !== '/' ? '?returnTo=' + encodeURIComponent(returnTo) : '' %>">Crea una aquí</a></p>
         </div>
     </section>
 

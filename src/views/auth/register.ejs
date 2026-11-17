@@ -6,11 +6,17 @@
             <h1>Crea tu cuenta.</h1>
             <p class="auth-intro">Únete a la conversación y comparte tus ideas.</p>
 
+            <% if (authRequired) { %>
+                <p class="auth-required-note" role="status">Crea tu cuenta para participar. Después podrás iniciar sesión y volver a la publicación.</p>
+            <% } %>
             <% if (error) { %>
                 <p class="form-error" role="alert"><%= error %></p>
             <% } %>
 
             <form action="/auth/register" method="POST" class="auth-form">
+                <% if (returnTo !== '/') { %>
+                    <input type="hidden" name="returnTo" value="<%= returnTo %>">
+                <% } %>
                 <label for="name">Nombre</label>
                 <input id="name" type="text" name="name" autocomplete="name" minlength="2" required>
 
@@ -23,7 +29,7 @@
 
                 <button class="button button-dark" type="submit">Crear cuenta <span aria-hidden="true">↗</span></button>
             </form>
-            <p class="auth-switch">¿Ya tienes una cuenta? <a href="/auth/login">Inicia sesión</a></p>
+            <p class="auth-switch">¿Ya tienes una cuenta? <a href="/auth/login<%= returnTo !== '/' ? '?returnTo=' + encodeURIComponent(returnTo) : '' %>">Inicia sesión</a></p>
         </div>
     </section>
 

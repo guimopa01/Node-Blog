@@ -49,6 +49,10 @@ npx prisma db push
 
 El primer comando genera el cliente de Prisma. El segundo crea o actualiza las tablas de `prisma/dev.db` según `prisma/schema.prisma`. Este proyecto todavía no incluye migraciones SQL; para preparar otra copia local, ejecuta los mismos dos comandos.
 
+Despues de preparar la base de datos, ejecuta `npm run admin:setup` para dar rol administrador a la cuenta `admin@gmail.com` existente; conserva su contrasena y desbloquea la cuenta. Si aun no existe, configura `ADMIN_PASSWORD` (8–72 bytes) en `.env` para crearla. No uses una contrasena de ejemplo ni compartas el archivo `.env`. El registro publico nunca asigna el rol de administrador.
+
+Al iniciar sesión como administrador, aparece el enlace **Administración** en el menú. Desde allí se pueden crear categorías, bloquear o desbloquear cuentas, y eliminar cuentas y publicaciones. Los comentarios se revisan y eliminan desde el desplegable de cada publicación. En las publicaciones se puede responder a los comentarios; cada comentario admite hasta 5000 caracteres. Al bloquear una cuenta se ocultan sus publicaciones, perfiles, comentarios y likes de las páginas públicas; al desbloquearla, vuelven a mostrarse. Eliminar una cuenta es permanente y elimina también sus publicaciones, comentarios, likes e imágenes asociadas. Los administradores no se pueden eliminar desde el panel.
+
 ## Arrancar Node
 
 ```sh

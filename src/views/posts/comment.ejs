@@ -1,0 +1,52 @@
+<article class="comment" data-comment-id="<%= comment.id %>">
+    <span class="comment-avatar" aria-hidden="true"><%= comment.name.trim().charAt(0).toUpperCase() %></span>
+    <div class="comment-body">
+        <div class="comment-heading">
+            <strong><%= comment.name %></strong>
+            <time datetime="<%= new Date(comment.createdAt).toISOString() %>">
+                <%= new Date(comment.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+            </time>
+        </div>
+        <p><%= comment.message %></p>
+        <% if (replyable) { %>
+            <% if (user) { %>
+                <button
+                    class="comment-reply-toggle"
+                    type="button"
+                    data-reply-toggle
+                    aria-expanded="false"
+                    aria-controls="comment-reply-form-<%= comment.id %>"
+                >Responder</button>
+                <form
+                    class="comment-form comment-reply-form"
+                    id="comment-reply-form-<%= comment.id %>"
+                    action="/posts/<%= postId %>/comments"
+                    method="POST"
+                    data-post-action="comment"
+                    hidden
+                >
+                    <input type="hidden" name="parentId" value="<%= comment.id %>">
+                    <span class="comment-avatar" aria-hidden="true"><%= user.name.trim().charAt(0).toUpperCase() %></span>
+                    <div class="comment-compose">
+                        <label class="sr-only" for="comment-reply-message-<%= comment.id %>">Responde a <%= comment.name %></label>
+                        <textarea id="comment-reply-message-<%= comment.id %>" name="message" rows="1" maxlength="5000" placeholder="Escribe tu respuesta..." required></textarea>
+                        <div class="comment-compose-actions">
+                            <span class="comment-char-counter"><span data-character-count>0</span>/5000</span>
+                            <button type="submit">Responder</button>
+                        </div>
+                    </div>
+                    <p class="form-error" data-action-error role="alert" hidden></p>
+                </form>
+            <% } else { %>
+                <a class="comment-reply-login" href="/auth/login?returnTo=<%= encodeURIComponent('/posts/' + postId + '#comments') %>">Inicia sesión para responder</a>
+            <% } %>
+        <% } %>
+    </div>
+    <% if (comment.replies?.length) { %>
+        <div class="comment-replies" data-comment-replies="<%= comment.id %>">
+            <% comment.replies.forEach((reply) => { %>
+                <%- include('comment', { comment: reply, postId, user, replyable: false }) %>
+            <% }) %>
+        </div>
+    <% } %>
+</article>

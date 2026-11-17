@@ -3,6 +3,199 @@
         <a class="brand footer-brand" href="/">Node Blog</a>
         <span>&copy; <%= new Date().getFullYear() %> Node Blog</span>
     </footer>
+    <script>
+        const createReplyForm = (postId, parentId, userName) => {
+            const form = document.createElement('form');
+            form.className = 'comment-form comment-reply-form';
+            form.action = `/posts/${postId}/comments`;
+            form.method = 'POST';
+            form.dataset.postAction = 'comment';
+            form.hidden = true;
+
+            const parentInput = document.createElement('input');
+            parentInput.type = 'hidden';
+            parentInput.name = 'parentId';
+            parentInput.value = parentId;
+            form.append(parentInput);
+
+            const avatar = document.createElement('span');
+            avatar.className = 'comment-avatar';
+            avatar.setAttribute('aria-hidden', 'true');
+            avatar.textContent = userName.trim().charAt(0).toUpperCase();
+            const compose = document.createElement('div');
+            compose.className = 'comment-compose';
+            const label = document.createElement('label');
+            label.className = 'sr-only';
+            label.htmlFor = `comment-reply-message-${parentId}`;
+            label.textContent = 'Escribe tu respuesta';
+            const textarea = document.createElement('textarea');
+            textarea.id = label.htmlFor;
+            textarea.name = 'message';
+            textarea.rows = 1;
+            textarea.maxLength = 5000;
+            textarea.placeholder = 'Escribe tu respuesta...';
+            textarea.required = true;
+            const actions = document.createElement('div');
+            actions.className = 'comment-compose-actions';
+            const counter = document.createElement('span');
+            counter.className = 'comment-char-counter';
+            counter.innerHTML = '<span data-character-count>0</span>/5000';
+            const submit = document.createElement('button');
+            submit.type = 'submit';
+            submit.textContent = 'Responder';
+            actions.append(counter, submit);
+            compose.append(label, textarea, actions);
+
+            const error = document.createElement('p');
+            error.className = 'form-error';
+            error.dataset.actionError = '';
+            error.setAttribute('role', 'alert');
+            error.hidden = true;
+            form.append(avatar, compose, error);
+            return form;
+        };
+
+        const createCommentElement = (comment, section) => {
+            const article = document.createElement('article');
+            article.className = 'comment';
+            article.dataset.commentId = comment.id;
+
+            const avatar = document.createElement('span');
+            avatar.className = 'comment-avatar';
+            avatar.setAttribute('aria-hidden', 'true');
+            avatar.textContent = comment.name.trim().charAt(0).toUpperCase();
+            const body = document.createElement('div');
+            body.className = 'comment-body';
+            const heading = document.createElement('div');
+            heading.className = 'comment-heading';
+            const name = document.createElement('strong');
+            name.textContent = comment.name;
+            const time = document.createElement('time');
+            const createdAt = new Date(comment.createdAt);
+            time.dateTime = createdAt.toISOString();
+            time.textContent = new Intl.DateTimeFormat('es-ES', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+            }).format(createdAt);
+            heading.append(name, time);
+            const message = document.createElement('p');
+            message.textContent = comment.message;
+            body.append(heading, message);
+
+            if (!comment.parentId && section.dataset.canReply === 'true') {
+                const replyFormId = `comment-reply-form-${comment.id}`;
+                const toggle = document.createElement('button');
+                toggle.className = 'comment-reply-toggle';
+                toggle.type = 'button';
+                toggle.dataset.replyToggle = '';
+                toggle.setAttribute('aria-expanded', 'false');
+                toggle.setAttribute('aria-controls', replyFormId);
+                toggle.textContent = 'Responder';
+                body.append(toggle, createReplyForm(
+                    section.dataset.postId,
+                    comment.id,
+                    section.dataset.currentUserName,
+                ));
+            }
+
+            article.append(avatar, body);
+            return article;
+        };
+
+        document.addEventListener('click', (event) => {
+            const toggle = event.target.closest('[data-reply-toggle]');
+            if (!toggle) return;
+
+            const form = document.getElementById(toggle.getAttribute('aria-controls'));
+            const expanded = toggle.getAttribute('aria-expanded') === 'true';
+            toggle.setAttribute('aria-expanded', String(!expanded));
+            form.hidden = expanded;
+        });
+
+        document.addEventListener('input', (event) => {
+            if (!event.target.matches('.comment-compose textarea')) return;
+            const counter = event.target.closest('.comment-compose').querySelector('[data-character-count]');
+            if (counter) counter.textContent = event.target.value.length;
+        });
+
+        document.addEventListener('submit', async (event) => {
+            const form = event.target.closest('form[data-post-action]');
+            if (!form) return;
+
+            event.preventDefault();
+            const button = form.querySelector('button[type="submit"]');
+            const errorMessage = form.querySelector('[data-action-error]');
+            button.disabled = true;
+            form.setAttribute('aria-busy', 'true');
+            errorMessage.hidden = true;
+            errorMessage.textContent = '';
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: new URLSearchParams(new FormData(form)),
+                    headers: { Accept: 'application/json' },
+                    credentials: 'same-origin',
+                });
+                if (response.redirected) {
+                    window.location.assign(response.url);
+                    return;
+                }
+
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'No se pudo completar la acción.');
+
+                if (form.dataset.postAction === 'like') {
+                    button.classList.toggle('is-liked', result.liked);
+                    button.setAttribute('aria-pressed', String(result.liked));
+                    button.setAttribute('aria-label', result.liked ? 'Quitar me gusta' : 'Me gusta');
+                    form.closest('.post-likes').querySelector('[data-likes-count]').textContent = result.likesCount;
+                    return;
+                }
+
+                const section = form.closest('.comments-section');
+                let commentList;
+                if (result.comment.parentId) {
+                    const parent = section.querySelector(`[data-comment-id="${result.comment.parentId}"]`);
+                    if (!parent) throw new Error('No se pudo encontrar el comentario al que respondes.');
+                    commentList = parent.querySelector(':scope > .comment-replies');
+                    if (!commentList) {
+                        commentList = document.createElement('div');
+                        commentList.className = 'comment-replies';
+                        commentList.dataset.commentReplies = result.comment.parentId;
+                        parent.append(commentList);
+                    }
+                } else {
+                    commentList = section.querySelector('.comment-list');
+                    if (!commentList) {
+                        commentList = document.createElement('div');
+                        commentList.className = 'comment-list';
+                        section.querySelector('.empty-comments')?.remove();
+                        const mainForm = section.querySelector('.comment-form:not(.comment-reply-form)');
+                        mainForm.insertAdjacentElement('afterend', commentList);
+                    }
+                }
+                commentList.append(createCommentElement(result.comment, section));
+
+                section.querySelector('[data-comments-count]').textContent = result.commentsCount;
+                const textarea = form.querySelector('textarea');
+                textarea.value = '';
+                form.querySelector('[data-character-count]').textContent = '0';
+                if (form.classList.contains('comment-reply-form')) {
+                    form.hidden = true;
+                    form.parentElement.querySelector('[data-reply-toggle]')
+                        .setAttribute('aria-expanded', 'false');
+                }
+            } catch (error) {
+                errorMessage.textContent = error.message || 'No se pudo completar la acción. Comprueba tu conexión e inténtalo de nuevo.';
+                errorMessage.hidden = false;
+            } finally {
+                button.disabled = false;
+                form.removeAttribute('aria-busy');
+            }
+        });
+    </script>
 </body>
 
 </html>

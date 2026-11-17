@@ -1,14 +1,84 @@
 <%- include('partials/header') %>
 
-    <section class="content-page page-width">
-        <div class="page-heading">
-            <p class="eyebrow">SOBRE NOSOTROS</p>
-            <h1>Sobre nosotros</h1>
-        </div>
-        <div class="prose">
-            <p>Node Blog es un espacio para publicar artículos, ideas y notas.</p>
-            <p>El contenido irá creciendo con cada nueva publicación. Gracias por leer.</p>
-        </div>
+    <section class="about-page page-width">
+        <section class="about-hero" aria-labelledby="about-title">
+            <div class="about-hero-copy">
+                <p class="about-eyebrow">SOBRE NODE BLOG</p>
+                <h1 id="about-title">Las ideas crecen cuando se comparten.</h1>
+                <p class="about-hero-lead">
+                    Un espacio para contar lo que te inspira, descubrir otras perspectivas y conversar con una comunidad curiosa.
+                </p>
+                <div class="about-hero-actions">
+                    <a class="button about-button" href="/blog">Explorar publicaciones <span aria-hidden="true">→</span></a>
+                    <a class="about-secondary-link" href="/profiles">Conocer a la comunidad</a>
+                </div>
+            </div>
+            <div class="about-hero-visual" aria-hidden="true">
+                <div class="about-orbit about-orbit-outer"></div>
+                <div class="about-orbit about-orbit-inner"></div>
+                <span class="about-mark">NB</span>
+                <div class="about-note">
+                    <span>UNA IDEA</span>
+                    <strong>puede abrir<br>una conversación.</strong>
+                </div>
+                <span class="about-visual-caption">PUBLICA · DESCUBRE · CONECTA</span>
+            </div>
+        </section>
+
+        <section class="about-story" aria-labelledby="about-story-title">
+            <div>
+                <p class="eyebrow">NUESTRA IDEA</p>
+                <h2 id="about-story-title">Un blog hecho para compartir, no para pasar de largo.</h2>
+            </div>
+            <div class="about-story-copy">
+                <p>
+                    Node Blog reúne publicaciones sobre intereses, experiencias y pequeñas ideas del día a día. Aquí puedes encontrar nuevas voces, aprender algo útil o simplemente leer algo que te haga pensar.
+                </p>
+                <p>
+                    Cada persona puede aportar su mirada. Por eso creemos que una buena comunidad se construye con curiosidad, respeto y conversaciones que dejan espacio para todos.
+                </p>
+            </div>
+        </section>
+
+        <section class="about-values" aria-labelledby="about-values-title">
+            <div class="about-section-heading">
+                <p class="eyebrow">EMPIEZA POR AQUÍ</p>
+                <h2 id="about-values-title">Hay muchas formas de formar parte.</h2>
+            </div>
+            <div class="about-value-grid">
+                <article class="about-value-card">
+                    <span class="about-value-number">01</span>
+                    <h3>Comparte lo que sabes</h3>
+                    <p>Publica una experiencia, una afición o una idea que te gustaría compartir con otras personas.</p>
+                </article>
+                <article class="about-value-card">
+                    <span class="about-value-number">02</span>
+                    <h3>Descubre otras voces</h3>
+                    <p>Explora publicaciones y perfiles para encontrar temas y perspectivas diferentes a las tuyas.</p>
+                </article>
+                <article class="about-value-card">
+                    <span class="about-value-number">03</span>
+                    <h3>Únete a la conversación</h3>
+                    <p>Deja un me gusta o responde a un comentario. Las buenas conversaciones se hacen entre todos.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="about-cta" aria-labelledby="about-cta-title">
+            <div>
+                <p class="about-eyebrow">TU TURNO</p>
+                <h2 id="about-cta-title">¿Qué te gustaría compartir?</h2>
+                <p>Explora el blog o crea una cuenta para participar en la comunidad.</p>
+            </div>
+            <div class="about-cta-actions">
+                <a class="button about-button" href="/blog">Ver el blog <span aria-hidden="true">→</span></a>
+                <% if (user) { %>
+                    <a class="about-secondary-link" href="/posts/create">Escribir una publicación</a>
+                <% } else { %>
+                    <a class="about-secondary-link" href="/auth/register">Crear una cuenta</a>
+                <% } %>
+            </div>
+        </section>
     </section>
 
 <%- include('partials/footer') %>

@@ -6,6 +6,8 @@ const session = require("express-session");
 const prisma = require("./src/config/prisma");
 const authRoutes = require("./src/routes/authRoutes");
 const postRoutes = require("./src/routes/postRoutes");
+const adminRoutes = require("./src/routes/adminRoutes");
+const { getBlockedEmails, publicPostListQuery, publicPostWhere } = require("./src/utils/contentVisibility");
 const { isAuthenticated } = require("./src/middlewares/authMiddleware");
 const app = express();
 
@@ -39,25 +41,46 @@ app.use(session({
   },
 }));
 
-app.use((request, response, next) => {
-  response.locals.user = request.session.user ?? null;
-  response.locals.currentPath = request.path;
-  next();
-});
+app.use(async (request, response, next) => {
+  try {
+    let user = request.session.user ?? null;
+    if (user) {
+      user = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { id: true, name: true, email: true, role: true, isBlocked: true },
+      });
 
-const postListQuery = {
-  include: {
-    user: { select: { name: true } },
-    category: { select: { name: true } },
-    images: { take: 1 },
-    _count: { select: { likes: true, comments: true } },
-  },
-  orderBy: { createdAt: "desc" },
-};
+      if (!user || user.isBlocked) {
+        await new Promise((resolve, reject) => {
+          request.session.destroy((error) => error ? reject(error) : resolve());
+        });
+        response.clearCookie("node-blog.sid");
+        return response.redirect("/auth/login?blocked=1");
+      }
+
+      request.session.user = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      };
+    }
+
+    response.locals.user = user;
+    response.locals.currentPath = request.path;
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 app.get("/", async (_request, response, next) => {
   try {
-    const posts = await prisma.post.findMany({ ...postListQuery, take: 6 });
+    const blockedEmails = await getBlockedEmails();
+    const posts = await prisma.post.findMany({
+      ...publicPostListQuery(blockedEmails),
+      take: 6,
+    });
     response.render("index", {
       title: "Node Blog — inicio",
       posts,
@@ -75,6 +98,7 @@ app.get("/about", (_request, response) => {
 app.get("/profiles", async (_request, response, next) => {
   try {
     const profiles = await prisma.user.findMany({
+      where: { isBlocked: false },
       select: {
         id: true,
         name: true,
@@ -98,18 +122,20 @@ app.get("/profiles/:id", async (request, response, next) => {
   }
 
   try {
-    const [profile, posts] = await Promise.all([
+    const [profile, blockedEmails] = await Promise.all([
       prisma.user.findUnique({
-        where: { id: profileId },
+        where: { id: profileId, isBlocked: false },
         select: { id: true, name: true },
       }),
-      prisma.post.findMany({
-        ...postListQuery,
-        where: { userId: profileId },
-      }),
+      getBlockedEmails(),
     ]);
 
     if (!profile) return response.status(404).send("Perfil no encontrado.");
+
+    const posts = await prisma.post.findMany({
+      ...publicPostListQuery(blockedEmails),
+      where: { AND: [publicPostWhere, { userId: profileId }] },
+    });
 
     response.render("profile", {
       title: `Node Blog — Perfil de ${profile.name}`,
@@ -123,7 +149,8 @@ app.get("/profiles/:id", async (request, response, next) => {
 
 app.get("/blog", async (_request, response, next) => {
   try {
-    const posts = await prisma.post.findMany(postListQuery);
+    const blockedEmails = await getBlockedEmails();
+    const posts = await prisma.post.findMany(publicPostListQuery(blockedEmails));
     response.render("blog", {
       title: "Node Blog — Blog",
       posts,
@@ -142,11 +169,13 @@ app.get("/contact", (request, response) => {
 });
 
 app.use("/auth", authRoutes);
+app.use("/admin", adminRoutes);
 app.use("/", postRoutes);
 
 app.get("/posts", async (_request, response, next) => {
   try {
     const posts = await prisma.post.findMany({
+      where: publicPostWhere,
       orderBy: { createdAt: "desc" },
     });
     response.json(posts);

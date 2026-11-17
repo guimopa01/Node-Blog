@@ -27,13 +27,18 @@ model Category {
 }
 
 model Comment {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
   email     String
   message   String
-  post      Post     @relation(fields: [postId], references: [id])
+  post      Post      @relation(fields: [postId], references: [id])
   postId    Int
-  createdAt DateTime @default(now())
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  parentId  Int?
+  replies   Comment[] @relation("CommentReplies")
+  createdAt DateTime  @default(now())
+
+  @@index([parentId])
 }
 
 model User {
@@ -41,6 +46,8 @@ model User {
   name      String
   email     String   @unique
   password  String
+  role      String   @default("USER")
+  isBlocked Boolean  @default(false)
   posts     Post[]
   likes     Like[]
   createdAt DateTime @default(now())

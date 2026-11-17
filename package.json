@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "./bin/node index.js",
-    "dev": "./bin/node --watch index.js",
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "admin:setup": "node scripts/setup-admin.js",
     "prisma": "./bin/prisma",
     "studio": "./bin/prisma studio",
     "test": "echo \"Error: no test specified\" && exit 1",

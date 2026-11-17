@@ -1,0 +1,166 @@
+<%- include('../partials/header') %>
+
+    <section class="admin-page page-width">
+        <header class="admin-heading">
+            <p class="eyebrow">PANEL PRIVADO</p>
+            <h1>Administración</h1>
+            <p>Gestiona las categorías, las cuentas y el contenido de Node Blog.</p>
+        </header>
+
+        <nav class="admin-sections" aria-label="Secciones de administración">
+            <a href="#categories">Categorías <span><%= categories.length %></span></a>
+            <a href="#accounts">Cuentas <span><%= users.length %></span></a>
+            <a href="#posts">Publicaciones <span><%= posts.length %></span></a>
+        </nav>
+
+        <% if (notice) { %>
+            <p class="admin-notice" role="status"><%= notice %></p>
+        <% } %>
+
+        <section class="admin-section" id="categories">
+            <div class="admin-section-heading">
+                <div>
+                    <p class="eyebrow">ORGANIZACIÓN</p>
+                    <h2>Categorías</h2>
+                </div>
+                <span class="admin-count"><%= categories.length %></span>
+            </div>
+            <form class="admin-category-form" action="/admin/categories" method="POST">
+                <label for="category-name">Nueva categoría</label>
+                <div>
+                    <input id="category-name" type="text" name="name" maxlength="50" placeholder="Ej. Tecnología" required>
+                    <button class="button" type="submit">Crear categoría</button>
+                </div>
+            </form>
+            <% if (categories.length) { %>
+                <ul class="admin-category-list">
+                    <% categories.forEach((category) => { %>
+                        <li><%= category.name %></li>
+                    <% }) %>
+                </ul>
+            <% } else { %>
+                <p class="admin-empty">Todavía no hay categorías.</p>
+            <% } %>
+        </section>
+
+        <section class="admin-section" id="accounts">
+            <div class="admin-section-heading">
+                <div>
+                    <p class="eyebrow">COMUNIDAD</p>
+                    <h2>Cuentas</h2>
+                </div>
+                <span class="admin-count"><%= users.length %></span>
+            </div>
+            <div class="admin-list">
+                <% if (users.length) { %>
+                    <% users.forEach((account) => { %>
+                        <article class="admin-row">
+                            <div class="admin-row-main">
+                                <span class="profile-avatar" aria-hidden="true"><%= account.name.trim().charAt(0).toUpperCase() %></span>
+                                <div>
+                                    <h3><%= account.name %><% if (account.role === 'ADMIN') { %><span class="admin-role">Admin</span><% } %></h3>
+                                    <p><%= account.email %> · <%= account._count.posts %> publicaciones</p>
+                                </div>
+                            </div>
+                            <div class="admin-row-actions">
+                                <% if (account.role === 'ADMIN') { %>
+                                    <span class="admin-status admin-status-protected">Administrador</span>
+                                <% } else if (account.isBlocked) { %>
+                                    <span class="admin-status admin-status-blocked">Bloqueada</span>
+                                    <form action="/admin/users/<%= account.id %>/block" method="POST">
+                                        <button class="admin-action" type="submit">Desbloquear</button>
+                                    </form>
+                                <% } else { %>
+                                    <span class="admin-status">Activa</span>
+                                    <form action="/admin/users/<%= account.id %>/block" method="POST">
+                                        <button class="admin-action admin-action-danger" type="submit">Bloquear</button>
+                                    </form>
+                                <% } %>
+                                <% if (account.role !== 'ADMIN') { %>
+                                    <form action="/admin/users/<%= account.id %>/delete" method="POST" onsubmit="return confirm('¿Eliminar esta cuenta, sus publicaciones, comentarios y me gusta? Esta acción no se puede deshacer.');">
+                                        <button class="admin-action admin-action-danger" type="submit">Eliminar cuenta</button>
+                                    </form>
+                                <% } %>
+                            </div>
+                        </article>
+                    <% }) %>
+                <% } else { %>
+                    <p class="admin-empty">Todavía no hay cuentas.</p>
+                <% } %>
+            </div>
+        </section>
+
+        <section class="admin-section" id="posts">
+            <div class="admin-section-heading">
+                <div>
+                    <p class="eyebrow">PUBLICACIONES</p>
+                    <h2>Gestionar publicaciones</h2>
+                </div>
+                <span class="admin-count"><%= posts.length %></span>
+            </div>
+            <div class="admin-list">
+                <% if (posts.length) { %>
+                    <% posts.forEach((post) => { %>
+                        <article class="admin-row">
+                            <div class="admin-row-main admin-post-main">
+                                <div>
+                                    <h3><a href="/posts/<%= post.id %>"><%= post.title %></a></h3>
+                                    <p>Por <%= post.user?.name || 'Autor no disponible' %> · <%= post._count.likes %> me gusta · <%= post._count.comments %> comentarios</p>
+                                </div>
+                            </div>
+                            <time class="admin-date" datetime="<%= new Date(post.createdAt).toISOString() %>"><%= new Date(post.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) %></time>
+                            <form action="/admin/posts/<%= post.id %>/delete" method="POST" onsubmit="return confirm('¿Eliminar esta publicación y sus comentarios y me gusta?');">
+                                <button class="admin-action admin-action-danger" type="submit">Eliminar</button>
+                            </form>
+                            <% if (post._count.comments) { %>
+                                <details
+                                    class="admin-post-comments"
+                                    id="post-<%= post.id %>-comments"
+                                    <%= openPostId === post.id ? 'open' : '' %>
+                                >
+                                    <summary>Ver comentarios y respuestas <span><%= post._count.comments %></span></summary>
+                                    <div class="admin-post-comment-list">
+                                        <% post.comments.forEach((comment) => { %>
+                                            <article class="admin-post-comment">
+                                                <div>
+                                                    <h4><%= comment.name %></h4>
+                                                    <time datetime="<%= new Date(comment.createdAt).toISOString() %>"><%= new Date(comment.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) %></time>
+                                                    <p><%= comment.message %></p>
+                                                </div>
+                                                <form action="/admin/comments/<%= comment.id %>/delete" method="POST" onsubmit="return confirm('¿Eliminar este comentario y sus respuestas?');">
+                                                    <button class="admin-action admin-action-danger" type="submit">Eliminar</button>
+                                                </form>
+                                            </article>
+                                            <% if (comment.replies.length) { %>
+                                                <div class="admin-post-replies">
+                                                    <% comment.replies.forEach((reply) => { %>
+                                                        <article class="admin-post-comment admin-post-reply">
+                                                            <div>
+                                                                <h4><%= reply.name %> <span>Respuesta a <%= comment.name %></span></h4>
+                                                                <time datetime="<%= new Date(reply.createdAt).toISOString() %>"><%= new Date(reply.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) %></time>
+                                                                <p><%= reply.message %></p>
+                                                            </div>
+                                                            <form action="/admin/comments/<%= reply.id %>/delete" method="POST" onsubmit="return confirm('¿Eliminar esta respuesta?');">
+                                                                <button class="admin-action admin-action-danger" type="submit">Eliminar</button>
+                                                            </form>
+                                                        </article>
+                                                    <% }) %>
+                                                </div>
+                                            <% } %>
+                                        <% }) %>
+                                    </div>
+                                </details>
+                            <% } else { %>
+                                <p class="admin-no-comments">Esta publicación aún no tiene comentarios.</p>
+                            <% } %>
+                        </article>
+                    <% }) %>
+                <% } else { %>
+                    <p class="admin-empty">Todavía no hay publicaciones.</p>
+                <% } %>
+            </div>
+        </section>
+
+    </section>
+
+<%- include('../partials/footer') %>
